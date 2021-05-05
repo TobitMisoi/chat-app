@@ -7,7 +7,7 @@ type UserState = {
 };
 
 type UserAction = {
-    type: String,
+    type: string,
     payload: {
         id: string;
         username: string;

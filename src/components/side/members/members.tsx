@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { CircularProgress } from '@material-ui/core'
 import React from 'react'
 import { MemberProps } from './interface'

@@ -27,10 +27,10 @@ const MessageInput: React.FC<Props> = (props) => {
       'November',
       'December'
     ]
-    let dateobj = new Date()
-    let month = monthNames[dateobj.getMonth()]
-    let day = String(dateobj.getDate()).padStart(2, '0')
-    let output = month + ' ' + day + ','
+    const dateobj = new Date()
+    const month = monthNames[dateobj.getMonth()]
+    const day = String(dateobj.getDate()).padStart(2, '0')
+    const output = month + ' ' + day + ','
 
     return `${output} - ${new Date().getHours()}: ${new Date().getMinutes()}`
   }

@@ -1,11 +1,11 @@
 import axios from 'axios'
-import { FC } from 'react'
+import React, { FC } from 'react'
 import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import CustomButton from '../../shared/customButton'
 import styles from './styles.module.scss'
 
-const Welcome: FC = (props) => {
+const Welcome: FC = () => {
   const dispatch = useDispatch()
 
   const guestRequest = async () => {
@@ -32,7 +32,7 @@ const Welcome: FC = (props) => {
         <CustomButton
           isPurple={false}
           small={false}
-          onClick={() => {}}
+          onClick={() => console.log()}
           title='Login'
         />
       </Link>
@@ -40,7 +40,7 @@ const Welcome: FC = (props) => {
         <CustomButton
           isPurple={true}
           small={false}
-          onClick={() => {}}
+          onClick={() => console.log()}
           title='SignUp'
         />
       </Link>

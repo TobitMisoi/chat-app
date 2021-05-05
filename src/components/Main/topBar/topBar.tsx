@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { IconButton } from '@material-ui/core'
 import React from 'react'
 import MenuIcon from '@material-ui/icons/Menu'

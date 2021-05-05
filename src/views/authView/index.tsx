@@ -14,8 +14,6 @@ import Signup from '../../components/features/signup'
 import Welcome from '../../components/features/welcome'
 import Cookie from '../../components/shared/cookie/cookie'
 
-type Props = {}
-
 type UserData = {
   id: string
   token: string
@@ -27,13 +25,12 @@ const darkTheme = createMuiTheme({
   }
 })
 
-const AuthView: FC<Props> = (props) => {
+const AuthView: FC = () => {
   const dispatch = useDispatch()
   const [cookie, setCookie] = React.useState(true)
 
   // TODO: #37 wrap the definition of 'verifyRequest' in its own useCallback() Hook.
   // Async request
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const verifyRequest = async (id: string, token: string) => {
     let resp
 
