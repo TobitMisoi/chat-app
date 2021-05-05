@@ -20,7 +20,7 @@ type SnackData = {
   message: string | null
 }
 
-const Signup: React.FC = (props) => {
+const Signup: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(false)
   const [snack, setSnack] = React.useState<SnackData>({
     open: false,

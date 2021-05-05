@@ -23,7 +23,7 @@ type SnackData = {
   message: string | null
 }
 
-const Login: React.FC = (props) => {
+const Login: React.FC = () => {
   const dispatch = useDispatch()
   const hist = useHistory()
 

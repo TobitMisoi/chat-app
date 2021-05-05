@@ -19,6 +19,7 @@ type UserAction = {
 
 const initialState: UserState = { isLogged: false, id: null, username: null, image: null, token: null }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const reducer = (state = initialState, action: UserAction) => {
     switch (action.type) {
         case 'LOGIN':
