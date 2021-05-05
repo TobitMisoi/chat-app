@@ -1,0 +1,38 @@
+.container {
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.wrapper {
+  width: 95%;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  &:hover {
+    cursor: pointer;
+    .tag,
+    .title {
+      color: rgb(129, 3, 255);
+      color: linear-gradient(
+        90deg,
+        rgba(129, 3, 255, 1) 0%,
+        rgba(195, 17, 255, 1) 100%
+      );
+    }
+  }
+}
+
+.tag {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #252329;
+  border-radius: 10px;
+  margin-right: 15px;
+}
