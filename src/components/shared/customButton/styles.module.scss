@@ -1,0 +1,42 @@
+.black,
+.purple,
+.smallPurple {
+    &:focus {
+        outline: none;
+    }
+}
+
+.purple,
+.black {
+    width: 350px;
+    height: 50px;
+    border-style: none;
+    margin: 20px 0;
+    &:hover {
+        cursor: pointer;
+    }
+
+    @media screen and (max-width: 350px) {
+        width: 300px;
+    }
+}
+
+.smallPurple {
+    width: 150px;
+    height: 40px;
+    font-size: 14px;
+    margin: 20px 0;
+    border: solid 2px rgb(129, 3, 255);
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.black {
+    background-color: #19161b;
+    color: #e0e0e0;
+    &:hover {
+        background-color: #e0e0e0;
+        color: #19161b;
+    }
+}
