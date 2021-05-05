@@ -14,10 +14,40 @@ const darkTheme = createMuiTheme({
 
 type Props = {
   title: string
+  onCreate: (title: string, description: string) => void
 }
 
 const Modal: React.FC<Props> = (props) => {
   const [title, setTitle] = React.useState('')
+  const [isValid, setIsValid] = React.useState(true)
+  const [titleErr, setTitleErr] = React.useState(false)
+  const [description, setDescription] = React.useState('')
+  const [titleHelper, setTitleHelper] = React.useState('')
+
+  //   functions
+  const createHandler = (title: string, description: string) => {
+    if (titleErr) {
+      setIsValid(false)
+      return
+    }
+
+    props.onCreate(title, description)
+  }
+
+  const titleHandler = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    //   titleHandler conditions
+    if (e.target.value.length <= 2 || e.target.value.length > 12) {
+      setTitleErr(true)
+      setTitleHelper('Title should contain 3 to 12 characters')
+    } else {
+      setTitleErr(false)
+      setTitleHelper('')
+      setIsValid(true)
+    }
+    setTitle(e.target.value)
+  }
 
   return (
     <div className={styles.backdrop}>
@@ -31,6 +61,9 @@ const Modal: React.FC<Props> = (props) => {
               label='title'
               variant='outlined'
               value={title}
+              helperText={titleHelper}
+              error={titleErr}
+              onChange={(e) => titleHandler(e)}
             />
             <TextField
               className={styles.input}
@@ -39,8 +72,16 @@ const Modal: React.FC<Props> = (props) => {
               label='Description'
               variant='outlined'
               multiline
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
-            <CustomButton isPurple title='Create' small onClick={() => {}} />
+            <CustomButton
+              isPurple
+              title='Create'
+              small
+              onClick={() => createHandler(title, description)}
+            />
+            {!isValid && <p className={styles.error}>Invalid Entries</p>}
           </form>
         </ThemeProvider>
       </div>
