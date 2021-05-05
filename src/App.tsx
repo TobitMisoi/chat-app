@@ -16,7 +16,7 @@ interface IRootState {
 const App: FC = () => {
   const isAuth = useSelector((state: IRootState) => state.auth.isLogged);
 
-  return isAuth ? <AppView /> : <AppView />;
+  return isAuth ? <AppView /> : <AuthView />;
 };
 
 export default App;
