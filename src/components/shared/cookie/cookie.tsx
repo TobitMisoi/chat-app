@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import CustomButton from '../customButton'
+import CustomButton from '../customButton/customButton'
 
 // Local imports
 import styles from './styles.module.scss'
