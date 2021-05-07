@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { useSelector } from "react-redux";
-import AppView from "./views/appView";
+import AppView from "./views/appView/app";
 import AuthView from "./views/authView";
 
 interface IRootState {
