@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react'
 import { IconButton, InputBase } from '@material-ui/core'
 import SendIcon from '@material-ui/icons/Send'

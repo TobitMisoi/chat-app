@@ -5,14 +5,8 @@ import { CircularProgress } from '@material-ui/core'
 // local imports
 import styles from './styles.module.scss'
 import Message from './message'
+import { PropsMessage } from './types'
 
-type PropsMessage = {
-  username: string
-  text: string
-  image: string
-  _id: string
-  date: string
-}
 
 type Props = {
   onClick: () => void
