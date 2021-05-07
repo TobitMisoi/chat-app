@@ -3,16 +3,10 @@ import React from 'react'
 
 // local imports
 import styles from './styles.module.scss'
+import { PropsMessage } from './types'
 
-type Props = {
-  username: string
-  text: string
-  image: string
-  _id: string
-  date: string
-}
 
-const Message: React.FC<Props> = (props) => {
+const Message: React.FC<PropsMessage> = (props) => {
   return (
     <div className={styles.messageContainer}>
       <div className={styles.image}>

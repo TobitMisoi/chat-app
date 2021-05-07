@@ -1,10 +1,11 @@
+/* eslint-disable react/prop-types */
 import React from 'react'
 
 import { ThemeProvider, createMuiTheme, TextField } from '@material-ui/core'
 
 // styles
 import styles from './styles.module.scss'
-import CustomButton from '../customButton'
+import CustomButton from '../customButton/customButton'
 
 const darkTheme = createMuiTheme({
   palette: {

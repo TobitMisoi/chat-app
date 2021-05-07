@@ -13,14 +13,14 @@ import { useFormik } from 'formik'
 
 // local imports
 import styles from './styles.module.scss'
-import CustomButton from '../../shared/customButton'
+import CustomButton from '../../shared/customButton/customButton'
 
 type SnackData = {
   open: boolean
   message: string | null
 }
 
-const Signup: React.FC = (props) => {
+const Signup: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(false)
   const [snack, setSnack] = React.useState<SnackData>({
     open: false,

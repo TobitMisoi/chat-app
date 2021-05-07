@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 type AppState = {
     inChannel: boolean;
     displayedGroups: [];
@@ -11,7 +12,7 @@ type AppState = {
 type AppAction = {
     type: string;
     payload: {
-        currentGroup: {};
+        currentGroup: [];
         displayedGroups: [];
         groups: [];
         messages: [];
@@ -29,6 +30,7 @@ const initialState: AppState = {
     currentGroup: null,
     modal: null
 };
+
 
 const reducer = (state = initialState, action: AppAction) => {
     switch (action.type) {
