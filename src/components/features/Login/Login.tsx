@@ -16,7 +16,7 @@ import * as Yup from 'yup'
 
 // internal imports
 import styles from './styles.module.scss'
-import CustomButton from '../../shared/customButton'
+import CustomButton from '../../shared/customButton/customButton'
 
 type SnackData = {
   open: boolean

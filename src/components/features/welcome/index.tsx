@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { FC } from 'react'
 import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
-import CustomButton from '../../shared/customButton'
+import CustomButton from '../../shared/customButton/customButton'
 import styles from './styles.module.scss'
 
 const Welcome: FC = () => {
