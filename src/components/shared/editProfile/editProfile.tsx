@@ -6,7 +6,7 @@ import {
   CircularProgress
 } from '@material-ui/core'
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomButton from '../customButton/customButton'
 import styles from './styles.module.scss'
 
@@ -23,29 +23,62 @@ interface IRootState {
   }
 }
 
+interface IRootState {
+  auth: {
+    username: string
+    image: string
+  }
+}
+
 const EditProfile: React.FC = (props) => {
-  const { image } = useSelector((state: IRootState) => state.auth)
+  const dispatch = useDispatch()
+
+  const { image, username } = useSelector((state: IRootState) => state.auth)
 
   const [isLoading, setIsLoading] = React.useState(false)
   const [isValid, setIsValid] = React.useState(true)
   const [newImage, setImage] = React.useState(image)
+  const [newUsername, setUsername] = React.useState(username)
+  const [usernameErr, setUsernameErr] = React.useState(false)
+  const [usernameHelper, setUsernameHelper] = React.useState('')
 
   const imgPickerRef = React.useRef<HTMLInputElement>(null)
+
+  const usernameHandler = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (e.target.value.length <= 2 || e.target.value.length > 12) {
+      setUsernameErr(true)
+      setUsernameHelper('Username should contain 3 to 12 characters.')
+    } else {
+      setUsernameErr(false)
+      setUsernameHelper('')
+      setIsValid(true)
+    }
+
+    setUsername(e.target.value)
+  }
 
   return (
     <div
       className={styles.backdrop}
-      onClick={() => console.log('dispatch data')}
+      onClick={() => dispatch({ type: 'MODAL', payload: { modal: null } })}
     >
       <div className={styles.modal}>
         <h2>Profile</h2>
         <ThemeProvider theme={darkTheme}>
-          <form action='' className={styles.form}>
+          <form
+            action=''
+            className={styles.form}
+            onSubmit={(e) => e.preventDefault()}
+          >
             <img
               src={newImage}
               alt='User'
               className={styles.image}
-              onClick={() => console.log('Pick image')}
+              onClick={() => {
+                if (imgPickerRef.current !== null) imgPickerRef.current.click()
+              }}
             />
             <input
               type='file'
@@ -59,7 +92,10 @@ const EditProfile: React.FC = (props) => {
               id='username'
               label='Username'
               variant='outlined'
-              onChange={() => console.log('use name handler')}
+              helperText={usernameHelper}
+              onChange={(e) => usernameHandler(e)}
+              error={usernameErr}
+              value={newUsername}
             />
             <CustomButton
               onClick={() => console.log('edit handler')}
