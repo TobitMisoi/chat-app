@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import socketIOClient from 'socket.io-client'
 import { BottomBar, TopBar as SideTopBar, Search } from '../../components'
 import { MainTopBar, Messages, OnBoard } from '../../components/Main'
 import { Modal, EditProfile } from '../../components/shared/'
@@ -128,36 +129,71 @@ const AppView: React.FC = () => {
     )
   }
 
+  const editProfileRequest = async (username: string) => {
+    const { id, token } = userData
+
+    if (!token) {
+      setSnack({
+        open: true,
+        severity: 'error',
+        message: `Guests are not allowed to edit profile, please register`
+      })
+      return
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={mobile ? styles.mobile : styles.side}>
         <SideTopBar
-          arrowClick={() => {}}
-          plusClick={() => {}}
-          inChannel={mobile}
+          arrowClick={() => {
+            dispatch({ type: 'EXIT' })
+          }}
+          plusClick={() => {
+            dispatch({ type: 'MODAL', payload: { madal: 'create' } })
+            setMobile(false)
+          }}
+          inChannel={inChannel}
         />
         {sideContent}
         <BottomBar
-          profileClick={() => {}}
-          bugClick={() => {}}
+          profileClick={() => {
+            dispatch({ type: 'MODAL', payload: { modal: 'edit' } })
+            setMobile(false)
+          }}
+          bugClick={() => {
+            dispatch({ type: 'MODAL', payload: { modal: 'bug' } })
+            setMobile(false)
+          }}
           exitClick={() => {}}
         />
-        {mainContent}
-        {modal === 'create' && (
-          <Modal
-            onCreate={() => console.log('Create group')}
-            title='New Channel'
-          />
-        )}
-        {modal === 'edit' && <EditProfile />}
-        {modal === 'bug' && (
-          <Modal
-            title='Report bug'
-            onCreate={() => console.log('report bug')}
-          />
-        )}
-        <Snackbar
-          open={snack.open}
+      </div>
+      {mainContent}
+
+      {modal === 'create' && (
+        <Modal
+          onCreate={() => console.log('Create group')}
+          title='New Channel'
+        />
+      )}
+      {modal === 'edit' && <EditProfile />}
+      {modal === 'bug' && (
+        <Modal title='Report bug' onCreate={() => console.log('report bug')} />
+      )}
+      <Snackbar
+        open={snack.open}
+        onClose={() =>
+          setSnack({
+            open: false,
+            severity: snack.severity,
+            message: null
+          })
+        }
+        autoHideDuration={5000}
+      >
+        <MuiAlert
+          variant='filled'
+          severity={snack.severity}
           onClose={() =>
             setSnack({
               open: false,
@@ -165,23 +201,10 @@ const AppView: React.FC = () => {
               message: null
             })
           }
-          autoHideDuration={5000}
         >
-          <MuiAlert
-            variant='filled'
-            severity={snack.severity}
-            onClose={() =>
-              setSnack({
-                open: false,
-                severity: snack.severity,
-                message: null
-              })
-            }
-          >
-            {snack.message}
-          </MuiAlert>
-        </Snackbar>
-      </div>
+          {snack.message}
+        </MuiAlert>
+      </Snackbar>
     </div>
   )
 }

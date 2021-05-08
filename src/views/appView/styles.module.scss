@@ -1,59 +1,59 @@
 @mixin columnLayout {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .container {
-    width: 100%;
-    height: 100vh;
-    display: flex;
+  width: 100%;
+  height: 100vh;
+  display: flex;
 
+  .main {
+    flex: 3;
+    background-color: #252329;
+    @include columnLayout;
+  }
+
+  .side,
+  .mobile {
+    flex: 1;
+    background-color: #19161b;
+    @include columnLayout;
+  }
+
+  @media screen and (max-width: 767px) {
     .main {
-        flex: 3;
-        background-color: #252329;
-        @include columnLayout;
+      flex: 1;
     }
 
-    .side,
-    .mobile {
-        flex: 1;
-        background-color: #19161b;
-        @include columnLayout;
+    .side {
+      display: none;
     }
-
-    @media screen and (max-width: 767px) {
-        .main {
-            flex: 1;
-        }
-
-        .side {
-            display: none;
-        }
-    }
+  }
 }
 
 .sideContent {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow-y: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-y: hidden;
 }
 
 .mobile {
-    position: absolute;
-    height: 100vh;
-    width: 80%;
-    z-index: 20;
-    animation: slide-in 0.5s linear 1 forwards;
+  position: absolute;
+  height: 100vh;
+  width: 80%;
+  z-index: 20;
+  animation: slide-in 0.5s linear 1 forwards;
 }
 
 @keyframes slide-in {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(0);
-    }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
