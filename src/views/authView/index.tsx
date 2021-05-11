@@ -56,14 +56,13 @@ const AuthView: FC = () => {
 
   React.useEffect(() => {
     const cookieData = localStorage.getItem('cookieData')
+
     if (cookieData) setCookie(false)
-
-    const userData = localStorage.getItem('userData')
+    const userData = localStorage.getItem('getItem')
     if (!userData) return
-
-    const parseData: UserData = JSON.parse(userData)
-    verifyRequest(parseData.id, parseData.token)
-  }, [verifyRequest])
+    const parsedData: UserData = JSON.parse(userData)
+    verifyRequest(parsedData.id, parsedData.token)
+  }, [])
 
   return (
     <ThemeProvider theme={darkTheme}>
