@@ -2,6 +2,7 @@
 import { IconButton, Tooltip } from '@material-ui/core'
 import { BugReport, ExitToApp } from '@material-ui/icons'
 import React, { FC } from 'react'
+import { useSelector } from 'react-redux'
 
 import styles from './styles.module.scss'
 
@@ -11,7 +12,15 @@ type Props = {
   exitClick: () => void
 }
 
+interface IRootState {
+  auth: {
+    username: string
+  }
+}
+
 const BottomBar: FC<Props> = (props) => {
+  const { username } = useSelector((state: IRootState) => state.auth)
+
   return (
     <div className={styles.container}>
       <div className={styles.wrapper}>
@@ -24,7 +33,7 @@ const BottomBar: FC<Props> = (props) => {
               onClick={props.profileClick}
             />
           </Tooltip>
-          <p className={styles.username}>Tobit Misoi</p>
+          <p className={styles.username}>{username}</p>
         </div>
       </div>
       <div className={styles.buttonContainer}>

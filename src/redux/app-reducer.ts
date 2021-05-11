@@ -5,14 +5,14 @@ type AppState = {
     messages: [];
     members: [];
     groups: [];
-    currentGroup: null;
+    currGroup: null;
     modal: null | 'bug' | 'edit' | 'create';
 };
 
 type AppAction = {
     type: string;
     payload: {
-        currentGroup: [];
+        currGroup: [];
         displayedGroups: [];
         groups: [];
         messages: [];
@@ -27,7 +27,7 @@ const initialState: AppState = {
     members: [],
     displayedGroups: [],
     groups: [],
-    currentGroup: null,
+    currGroup: null,
     modal: null
 };
 
@@ -35,7 +35,7 @@ const initialState: AppState = {
 const reducer = (state = initialState, action: AppAction) => {
     switch (action.type) {
         case 'CHANGE GROUP':
-            return { ...state, currentGroup: action.payload.currentGroup, inChannel: true };
+            return { ...state, currentGroup: action.payload.currGroup, inChannel: true };
 
         case 'SEARCH':
             return { ...state, displayedGroups: action.payload.displayedGroups };
@@ -53,7 +53,7 @@ const reducer = (state = initialState, action: AppAction) => {
             return {
                 ...state,
                 inChannel: false,
-                currentGroup: null,
+                currGroup: null,
                 displayedGroups: state.groups,
                 members: [],
                 messages: []
