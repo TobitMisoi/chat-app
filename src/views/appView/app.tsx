@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -186,13 +187,13 @@ const AppView: React.FC = () => {
   };
 
   React.useEffect(() => {
-    const socket = io(`${process.env.REACT_APP_SOCKET_URL}`, {
+    const sct = io(process.env.REACT_APP_SOCKET_URL!, {
       transports: ["websocket"],
     });
 
-    socket.emit("new user", userData.id);
-    socket.on("fetch messages", (id: string) => fetchMesages(id));
-    socket.on("fetch groups", fetchGroups);
+    sct.emit("new user", userData.id);
+    sct.on("fetch messages", (id: string) => fetchMesages(id));
+    sct.on("fetch group", fetchGroups);
     setSocket(socket);
     fetchGroups();
   }, []);
@@ -208,8 +209,21 @@ const AppView: React.FC = () => {
     console.log("fetch messages", gid);
   };
 
-  const fetchGroups = () => {
-    console.log("Fetch groups");
+  const fetchGroups = async () => {
+    let resp;
+
+    try {
+      resp = await axios.get(`${process.env.REACT_APP_SERVER_URL}/groups`);
+    } catch (err) {
+      console.log(err);
+    }
+    if (!resp) return;
+    console.log(resp.data.groups);
+
+    dispatch({
+      type: "FETCH GROUPS",
+      payload: { displayedGroups: resp.data.groups, groups: resp.data.groups },
+    });
   };
 
   // Handlers
