@@ -4,7 +4,12 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import io, { Socket } from "socket.io-client";
 import { BottomBar, TopBar as SideTopBar, Search } from "../../components";
-import { MainTopBar, Messages, OnBoard } from "../../components/Main";
+import {
+  MainTopBar,
+  MessageInput,
+  Messages,
+  OnBoard,
+} from "../../components/Main";
 import { Modal, EditProfile } from "../../components/shared/";
 import GroupInfo from "../../components/side/groupInfo/groupInfo";
 import Groups from "../../components/side/groups/groups";
@@ -14,7 +19,7 @@ import { Snackbar } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 
 import styles from "./styles.module.scss";
-import { SnackData } from "./types";
+import { GroupData, SnackData } from "./types";
 import axios from "axios";
 
 const AppView: React.FC = () => {
@@ -32,6 +37,91 @@ const AppView: React.FC = () => {
   const userData = useSelector((state: IRootState) => state.auth);
   const { inChannel, currGroup, members, messages, groups, modal } =
     useSelector((state: IRootState) => state.app);
+
+  const fetchMesages = async (gid = currGroup?._id) => {
+    if (!gid) return;
+    console.log("GID",gid);
+
+    let resp;
+
+    try {
+      resp = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL}/groups/60be5c3a6fc2bfdc0467a490`
+      );
+    } catch (err) {
+      console.log("[EROR][MESSAGES][FETCH]", err);
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "An error occured: Could not fetch messages and members",
+      });
+      setLoading(false);
+      return;
+    }
+
+    console.log(resp.data);
+
+    // if (resp.data) {
+    //   setSnack({
+    //     open: true,
+    //     severity: "error",
+    //     message: "An error occured: Could not fetch messages and members",
+    //   });
+    // }
+
+    // // dispatch data
+    // dispatch({
+    //   type: "FETCH MESSAGES",
+    //   payload: resp.data.messages,
+    //   members: resp.data.members,
+    // });
+  };
+
+  React.useEffect(() => {
+    if (!socket) return;
+    socket.emit("join group", userData.id, currGroup?._id);
+
+    fetchMesages();
+  }, [currGroup]);
+
+  React.useEffect(() => {
+    const sct = io(process.env.REACT_APP_SOCKET_URL!, {
+      transports: ["websocket"],
+    });
+
+    sct.emit("new user", userData.id);
+    sct.on("fetch messages", (id: string) => fetchMesages(id));
+    sct.on("fetch group", fetchGroups);
+    setSocket(socket);
+    fetchGroups();
+  }, []);
+
+  // creating messages
+  const createMessage = async (text: string, date: string) => {
+    if (!socket) return;
+
+    let resp;
+    try {
+      resp = await axios.post(`${process.env.REACT_APP_SERVER_URL}/messages`, {
+        gid: currGroup?._id,
+        text,
+        username: userData.username,
+        image: userData.image,
+        uid: userData.id,
+        date,
+      });
+    } catch (err) {
+      console.log("[ERROR][GROUPS][CREATE]", err);
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "An error occured: Could not send message",
+      });
+      return;
+    }
+    if (!resp) return;
+    socket?.emit("message", userData.id, currGroup?._id);
+  };
 
   // creating a group
   const createGroup = async (title: string, description: string) => {
@@ -83,7 +173,13 @@ const AppView: React.FC = () => {
 
     if (!resp) return;
     dispatch({ type: "MODAL", payload: { modal: null } });
-    // fetchGroups()
+    fetchGroups();
+    socket?.emit("create group", userData.id, title);
+    setSnack({
+      open: true,
+      severity: "error",
+      message: `${title} channel created`,
+    });
   };
 
   // Render
@@ -108,13 +204,17 @@ const AppView: React.FC = () => {
           loading={loading}
           messages={messages}
         />
+        <MessageInput
+          sendClick={createMessage}
+          onClick={() => setMobile(false)}
+        />
       </div>
     );
   } else {
     sideContent = (
       <div className={styles.sideContent}>
         <Search groups={groups} update={() => console.log("update")} />
-        <Groups groups={groups} groupClick={() => console.log("groupClick")} />
+        <Groups groups={groups} groupClick={(id) => groupHandler(id)} />
       </div>
     );
     mainContent = (
@@ -159,7 +259,11 @@ const AppView: React.FC = () => {
 
     let resp;
     try {
-      resp = await axios.put(`${process.env.REACT_APP_SERVER_URL}/users/edit`);
+      resp = await axios.put(`${process.env.REACT_APP_SERVER_URL}/users/edit`, {
+        username,
+        image,
+        id,
+      });
     } catch (err) {
       console.log("[ERROR][USERS][EDIT] ", err);
       setSnack({
@@ -186,39 +290,20 @@ const AppView: React.FC = () => {
     });
   };
 
-  React.useEffect(() => {
-    const sct = io(process.env.REACT_APP_SOCKET_URL!, {
-      transports: ["websocket"],
-    });
-
-    sct.emit("new user", userData.id);
-    sct.on("fetch messages", (id: string) => fetchMesages(id));
-    sct.on("fetch group", fetchGroups);
-    setSocket(socket);
-    fetchGroups();
-  }, []);
-
-  React.useEffect(() => {
-    if (!socket) return;
-    socket.emit("join group", userData.id, currGroup?._id);
-
-    fetchMesages();
-  }, [currGroup]);
-
-  const fetchMesages = (gid = currGroup?._id) => {
-    console.log("fetch messages", gid);
-  };
-
   const fetchGroups = async () => {
     let resp;
 
     try {
       resp = await axios.get(`${process.env.REACT_APP_SERVER_URL}/groups`);
     } catch (err) {
-      console.log(err);
+      console.log("[ERROR][FETCH][GROUPS]:", err);
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "An error occured: Could not fetch groups",
+      });
     }
     if (!resp) return;
-    console.log(resp.data.groups);
 
     dispatch({
       type: "FETCH GROUPS",
@@ -232,7 +317,16 @@ const AppView: React.FC = () => {
     localStorage.removeItem("userData");
     dispatch({ type: "LOGOUT" });
   };
-  const groupHandler = () => {};
+  const groupHandler = (id: string) => {
+    setLoading(true);
+    const current = groups.filter((item: GroupData) => item._id === id);
+    if (current.length > 0) {
+      dispatch({
+        type: "CHANGE GROUP",
+        payload: { currGroup: current[0] },
+      });
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -242,7 +336,7 @@ const AppView: React.FC = () => {
             dispatch({ type: "EXIT" });
           }}
           plusClick={() => {
-            dispatch({ type: "MODAL", payload: { madal: "create" } });
+            dispatch({ type: "MODAL", payload: { modal: "create" } });
             setMobile(false);
           }}
           inChannel={inChannel}
@@ -263,10 +357,7 @@ const AppView: React.FC = () => {
       {mainContent}
 
       {modal === "create" && (
-        <Modal
-          onCreate={() => console.log("Create group")}
-          title="New Channel"
-        />
+        <Modal onCreate={createGroup} title="New Channel" />
       )}
       {modal === "edit" && <EditProfile onEdit={editProfileRequest} />}
       {modal === "bug" && (
@@ -286,13 +377,14 @@ const AppView: React.FC = () => {
         <MuiAlert
           variant="filled"
           severity={snack.severity}
-          onClose={() =>
+          onClose={() => {
             setSnack({
               open: false,
               severity: snack.severity,
               message: null,
-            })
-          }
+            });
+            return;
+          }}
         >
           {snack.message}
         </MuiAlert>
