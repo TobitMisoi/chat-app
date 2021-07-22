@@ -34,6 +34,23 @@ const AppView: React.FC = () => {
   const { inChannel, currGroup, members, messages, groups, modal } =
     useSelector((state: IRootState) => state.app);
 
+  const fetchGroups = async () => {
+    let resp;
+
+    try {
+      resp = await axios.get(`${apiConfig.url}/groups`);
+    } catch (err) {
+      console.log(err);
+    }
+    if (!resp) return;
+    console.log(resp.data.groups);
+
+    dispatch({
+      type: "FETCH GROUPS",
+      payload: { displayedGroups: resp.data.groups, groups: resp.data.groups },
+    });
+  };
+
   // creating a group
   const createGroup = async (title: string, description: string) => {
     const { token, id } = userData;
@@ -49,13 +66,10 @@ const AppView: React.FC = () => {
 
     let verifiedToken;
     try {
-      verifiedToken = await axios.post(
-        `${apiConfig.url}/users/verify`,
-        {
-          id,
-          token,
-        }
-      );
+      verifiedToken = await axios.post(`${apiConfig.url}/users/verify`, {
+        id,
+        token,
+      });
     } catch (err) {
       console.log("[ERROR][AUTH][VERIFY] :", err);
       return;
@@ -84,7 +98,13 @@ const AppView: React.FC = () => {
 
     if (!resp) return;
     dispatch({ type: "MODAL", payload: { modal: null } });
-    // fetchGroups()
+    fetchGroups();
+    socket?.emit("create group", userData.id, title);
+    setSnack({
+      open: true,
+      severity: "success",
+      message: `${title} channel created.`,
+    });
   };
 
   // Render
@@ -126,7 +146,7 @@ const AppView: React.FC = () => {
     );
   }
 
-  const editProfileRequest = async () => {
+  const editProfileRequest = async (username: string, image: string) => {
     const { id, token } = userData;
 
     if (!token) {
@@ -157,7 +177,11 @@ const AppView: React.FC = () => {
 
     let resp;
     try {
-      resp = await axios.put(`${process.env.REACT_APP_SERVER_URL}/users/edit`);
+      resp = await axios.put(`${apiConfig.url}/users/edit`, {
+        id,
+        username,
+        image,
+      });
     } catch (err) {
       console.log("[ERROR][USERS][EDIT] ", err);
       setSnack({
@@ -169,6 +193,7 @@ const AppView: React.FC = () => {
     }
 
     if (!resp) return;
+
     setSnack({ open: true, severity: "success", message: "Profile updated" });
     dispatch({
       type: "MODAL",
@@ -202,24 +227,36 @@ const AppView: React.FC = () => {
     fetchMessages();
   }, [currGroup]);
 
-  const fetchMessages = (gid = currGroup?._id) => {
-    console.log("fetch messages", gid);
-  };
+  const fetchMessages = async (gid = currGroup?._id) => {
+    if (!gid) return;
 
-  const fetchGroups = async () => {
     let resp;
-
     try {
-      resp = await axios.get(`${apiConfig}/groups`);
-    } catch (err) {
-      console.log(err);
+      resp = await axios.get(`${apiConfig.url}/groups/${gid}`);
+    } catch (error) {
+      console.log("[ERROR][MESSAGES][FETCH]: ", error);
+      setSnack({
+        open: true,
+        severity: "error",
+        message: `An error occurred: Could not fetch messages and members.`,
+      });
+      setLoading(false);
+      return;
     }
-    if (!resp) return;
-    console.log(resp.data.groups);
+
+    setLoading(false);
+    if (resp.data.error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: `An error occurred: Could not fetch messages and members.`,
+      });
+      return;
+    }
 
     dispatch({
-      type: "FETCH GROUPS",
-      payload: { displayedGroups: resp.data.groups, groups: resp.data.groups },
+      type: "FETCH MESSAGES",
+      payload: { messages: resp.data.messages, members: resp.data.members },
     });
   };
 
