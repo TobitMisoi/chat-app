@@ -40,10 +40,17 @@ const reducer = (state = initialState, action: UserAction) => {
       return {
         ...state,
         isLogged: false,
+        username: null,
+        image: null,
+        token: null,
+        id: null,
+      };
+    case "EDIT":
+      return {
+        ...state,
+        isLogged: true,
         username: action.payload.username,
         image: action.payload.image,
-        token: null,
-        id: action.payload.id,
       };
     default:
       return state;
