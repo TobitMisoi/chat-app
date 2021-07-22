@@ -1,18 +1,17 @@
 /* eslint-disable react/prop-types */
-import React from 'react'
-import { CircularProgress } from '@material-ui/core'
+import React from "react";
+import { CircularProgress } from "@material-ui/core";
 
 // local imports
-import styles from './styles.module.scss'
-import Message from './message'
-import { PropsMessage } from './types'
-
+import styles from "./styles.module.scss";
+import Message from "./message";
+import { PropsMessage } from "./types";
 
 type Props = {
-  onClick: () => void
-  loading: boolean
-  messages: PropsMessage[]
-}
+  onClick: () => void;
+  loading: boolean;
+  messages: PropsMessage[];
+};
 
 const Messages: React.FC<Props> = (props) => {
   return (
@@ -23,7 +22,7 @@ const Messages: React.FC<Props> = (props) => {
             <CircularProgress />
           </div>
         ) : (
-          <div className={styles.wraper}>
+          <div className={styles.wrapper}>
             {props.messages.map((item) => (
               <Message
                 key={item._id}
@@ -38,7 +37,7 @@ const Messages: React.FC<Props> = (props) => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Messages
+export default Messages;
