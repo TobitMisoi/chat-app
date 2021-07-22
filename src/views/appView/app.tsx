@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import io, { Socket } from "socket.io-client";
+import socketIOClient, { Socket } from "socket.io-client";
 import { BottomBar, TopBar as SideTopBar, Search } from "../../components";
 import { MainTopBar, Messages, OnBoard } from "../../components/Main";
 import { Modal, EditProfile } from "../../components/shared/";
@@ -14,8 +14,9 @@ import { Snackbar } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 
 import styles from "./styles.module.scss";
-import { SnackData } from "./types";
+import { GroupData, SnackData } from "./types";
 import axios from "axios";
+import { apiConfig } from "../../config/api";
 
 const AppView: React.FC = () => {
   const [mobile, setMobile] = React.useState(false);
@@ -49,7 +50,7 @@ const AppView: React.FC = () => {
     let verifiedToken;
     try {
       verifiedToken = await axios.post(
-        `${process.env.REACT_APP_SERVER_URL}/users/verify`,
+        `${apiConfig.url}/users/verify`,
         {
           id,
           token,
@@ -67,7 +68,7 @@ const AppView: React.FC = () => {
 
     let resp;
     try {
-      resp = await axios.post(`${process.env.REACT_APP_SERVER_URL}/groups`, {
+      resp = await axios.post(`${apiConfig.url}/groups`, {
         title,
         description: description ? description : "No description",
       });
@@ -76,7 +77,7 @@ const AppView: React.FC = () => {
       setSnack({
         open: true,
         severity: "error",
-        message: "An error occured: Could not create group.",
+        message: "An error occurred: Could not create group.",
       });
       return;
     }
@@ -114,18 +115,18 @@ const AppView: React.FC = () => {
     sideContent = (
       <div className={styles.sideContent}>
         <Search groups={groups} update={() => console.log("update")} />
-        <Groups groups={groups} groupClick={() => console.log("groupClick")} />
+        <Groups groups={groups} groupClick={(id) => groupHandler(id)} />
       </div>
     );
     mainContent = (
       <div className={styles.main}>
-        <MainTopBar title="" menuClick={() => setMobile(true)} />
+        <MainTopBar title='' menuClick={() => setMobile(true)} />
         <OnBoard onClick={() => setMobile(false)} />
       </div>
     );
   }
 
-  const editProfileRequest = async (username: string, image: string) => {
+  const editProfileRequest = async () => {
     const { id, token } = userData;
 
     if (!token) {
@@ -139,13 +140,10 @@ const AppView: React.FC = () => {
 
     let verifiedToken;
     try {
-      verifiedToken = await axios.post(
-        `${process.env.REACT_APP_SERVER_URL}/users/verify`,
-        {
-          id,
-          token,
-        }
-      );
+      verifiedToken = await axios.post(`${apiConfig.url}/users/verify`, {
+        id,
+        token,
+      });
     } catch (err) {
       console.log("[ERROR][AUTH][VERIFY]: ", err);
       return;
@@ -165,7 +163,7 @@ const AppView: React.FC = () => {
       setSnack({
         open: true,
         severity: "error",
-        message: "An error occured: Could not edit profile",
+        message: "An error occurred: Could not edit profile",
       });
       return;
     }
@@ -187,13 +185,12 @@ const AppView: React.FC = () => {
   };
 
   React.useEffect(() => {
-    const sct = io(process.env.REACT_APP_SOCKET_URL!, {
+    const socket = socketIOClient(`${apiConfig.socketUrl}`!, {
       transports: ["websocket"],
     });
-
-    sct.emit("new user", userData.id);
-    sct.on("fetch messages", (id: string) => fetchMesages(id));
-    sct.on("fetch group", fetchGroups);
+    socket.emit("new user", userData.id);
+    socket.on("fetch messages", (id: string) => fetchMessages(id));
+    socket.on("fetch group", fetchGroups);
     setSocket(socket);
     fetchGroups();
   }, []);
@@ -202,10 +199,10 @@ const AppView: React.FC = () => {
     if (!socket) return;
     socket.emit("join group", userData.id, currGroup?._id);
 
-    fetchMesages();
+    fetchMessages();
   }, [currGroup]);
 
-  const fetchMesages = (gid = currGroup?._id) => {
+  const fetchMessages = (gid = currGroup?._id) => {
     console.log("fetch messages", gid);
   };
 
@@ -213,7 +210,7 @@ const AppView: React.FC = () => {
     let resp;
 
     try {
-      resp = await axios.get(`${process.env.REACT_APP_SERVER_URL}/groups`);
+      resp = await axios.get(`${apiConfig}/groups`);
     } catch (err) {
       console.log(err);
     }
@@ -232,7 +229,13 @@ const AppView: React.FC = () => {
     localStorage.removeItem("userData");
     dispatch({ type: "LOGOUT" });
   };
-  const groupHandler = () => {};
+  const groupHandler = (id: string) => {
+    setLoading(true);
+    const current = groups.filter((item: GroupData) => item._id === id);
+    if (current.length > 0) {
+      dispatch({ type: "GROUP", payload: { currGroup: current[0] } });
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -242,7 +245,7 @@ const AppView: React.FC = () => {
             dispatch({ type: "EXIT" });
           }}
           plusClick={() => {
-            dispatch({ type: "MODAL", payload: { madal: "create" } });
+            dispatch({ type: "MODAL", payload: { modal: "create" } });
             setMobile(false);
           }}
           inChannel={inChannel}
@@ -263,14 +266,11 @@ const AppView: React.FC = () => {
       {mainContent}
 
       {modal === "create" && (
-        <Modal
-          onCreate={() => console.log("Create group")}
-          title="New Channel"
-        />
+        <Modal onCreate={createGroup} title='New Channel' />
       )}
       {modal === "edit" && <EditProfile onEdit={editProfileRequest} />}
       {modal === "bug" && (
-        <Modal title="Report bug" onCreate={() => console.log("report bug")} />
+        <Modal title='Report bug' onCreate={() => console.log("report bug")} />
       )}
       <Snackbar
         open={snack.open}
@@ -284,7 +284,7 @@ const AppView: React.FC = () => {
         autoHideDuration={5000}
       >
         <MuiAlert
-          variant="filled"
+          variant='filled'
           severity={snack.severity}
           onClose={() =>
             setSnack({
