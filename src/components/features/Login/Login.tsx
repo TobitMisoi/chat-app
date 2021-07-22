@@ -17,6 +17,7 @@ import * as Yup from 'yup'
 // internal imports
 import styles from './styles.module.scss'
 import CustomButton from '../../shared/customButton/customButton'
+import { apiConfig } from '../../../config/api'
 
 type SnackData = {
   open: boolean
@@ -44,7 +45,7 @@ const Login: React.FC = () => {
     let resp
     try {
       resp = await axios.post(
-        `${process.env.REACT_APP_SERVER_URL}/users/login`,
+        `${apiConfig.url}/users/login`,
         {
           checked,
           email: email.toLowerCase(),
